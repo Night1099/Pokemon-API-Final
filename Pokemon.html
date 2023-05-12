@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pokemon Info</title>
+    <style>
+      /* Style for the list of Pokemon */
+      .pokemon-list {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .pokemon-list .pokemon {
+        margin: 5px;
+        padding: 5px;
+        border: 1px solid black;
+        cursor: pointer;
+      }
+
+      .pokemon-details {
+        display: none;
+      }
+
+      .pokemon-details.active {
+        display: block;
+      }
+
+      .pokemon-details .sprite {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 10px;
+      }
+
+      .pokemon-details .types {
+        margin-bottom: 10px;
+      }
+
+      .pokemon-details .type {
+        display: inline-block;
+        padding: 5px;
+        margin-right: 5px;
+        color: white;
+        font-weight: bold;
+        border-radius: 5px;
+      }
+
+      .pokemon-details .type.grass {
+        background-color: green;
+      }
+
+      .pokemon-details .type.fire {
+        background-color: orange;
+      }
+
+      .pokemon-details .type.water {
+        background-color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Pokemon Info</h1>
+    <div class="pokemon-list"></div>
+    <div class="pokemon-details"></div>
+
+    <script>
+      const pokemonList = document.querySelector('.pokemon-list');
+      const pokemonDetails = document.querySelector('.pokemon-details');
+
+      // Fetch the list of Pokemon
+      fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+        .then(response => response.json())
+        .then(data => {
+          // Create a Pokemon element for each Pokemon in the list
+          data.results.forEach(pokemon => {
+            const pokemonElement = document.createElement('div');
+            pokemonElement.classList.add('pokemon');
+            pokemonElement.textContent = pokemon.name.toUpperCase();
+
+            
+            pokemonElement.addEventListener('click', () => {
+              // Fetch the detailed data for the clicked Pokemon
+              fetch(pokemon.url)
+                .then(response => response.json())
+                .then(data => {
+                  // Create a detailed view for the Pokemon
+                  const spriteElement = document.createElement('img');
+                  spriteElement.classList.add('sprite');
+                  spriteElement.src = data.sprites.front_default;
+
+                  const nameElement = document.createElement('h2');
+                  nameElement.textContent = data.name.toUpperCase();
+
+                  const idElement = document.createElement('p');
+                  idElement.textContent = `#${data.id}`;
+
+                  const typesElement = document.createElement('div');
+                  typesElement.classList.add('types');
+                  data.types.forEach(type => {
+                    const typeElement = document.createElement('span');
+                    typeElement.classList.add('type');
+                    typeElement.classList.add(type.type.name);
+                    typeElement.textContent = type.type.name.toUpperCase();
+                    typesElement.appendChild(typeElement);
+                  });
+
+                  // Replace the current Pokemon details with the new Pokemon details
+                  pokemonDetails.innerHTML = '';
+                  pokemonDetails.appendChild(spriteElement);
+                  pokemonDetails.appendChild(nameElement);
+                  pokemonDetails.appendChild(idElement);
+                  pokemonDetails.appendChild(typesElement);
+                  pokemonDetails.classList.add('active');
+                });
+            });
+
+            pokemonList.appendChild(pokemonElement);
+          });
+        });
+    </script>
+  </body>
+</html>
